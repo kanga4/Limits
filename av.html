@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Avilo: Catch the Emoji</title>
+  <style>
+    :root {
+      --bg-color: #111;
+      --text-color: #fff;
+    }
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', sans-serif;
+      background-color: var(--bg-color);
+      color: var(--text-color);
+      overflow: hidden;
+      transition: background 0.5s, color 0.5s;
+    }
+    #gameArea {
+      width: 100vw;
+      height: 100vh;
+      position: relative;
+    }
+    #emoji {
+      font-size: 3rem;
+      position: absolute;
+      cursor: pointer;
+      animation: float 1s infinite ease-in-out alternate;
+      transition: top 0.3s, left 0.3s;
+      display: none;
+    }
+    @keyframes float {
+      0%   { transform: translateY(0px); }
+      100% { transform: translateY(-20px); }
+    }
+    #scoreBoard, #timer {
+      position: absolute;
+      top: 10px;
+      font-size: 1.2rem;
+      z-index: 10;
+      background: rgba(0,0,0,0.4);
+      padding: 6px 10px;
+      border-radius: 6px;
+    }
+    #scoreBoard { left: 10px; }
+    #timer { left: 130px; }
+
+    #themeToggle, #startBtn {
+      position: absolute;
+      top: 10px;
+      padding: 6px 12px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      font-weight: bold;
+      z-index: 10;
+    }
+    #themeToggle {
+      right: 10px;
+      background: #333;
+      color: white;
+    }
+    #startBtn {
+      left: 250px;
+      background: #28a745;
+      color: white;
+    }
+
+    #message {
+      position: absolute;
+      top: 40%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      font-size: 2rem;
+      display: none;
+      background: rgba(0, 0, 0, 0.7);
+      padding: 20px 30px;
+      border-radius: 10px;
+      z-index: 100;
+    }
+  </style>
+</head>
+<body>
+  <div id="gameArea">
+    <div id="scoreBoard">Score: 0</div>
+    <div id="timer">Time: 60s</div>
+    <button id="themeToggle">Light Mode</button>
+    <button id="startBtn">Start Game</button>
+    <div id="emoji">😄</div>
+    <div id="message"></div>
+    <audio id="clickSound" src="https://www.soundjay.com/button/sounds/button-29.mp3"></audio>
+  </div>
+
+  <script>
+    const emoji = document.getElementById('emoji');
+    const scoreBoard = document.getElementById('scoreBoard');
+    const timerDisplay = document.getElementById('timer');
+    const toggleBtn = document.getElementById('themeToggle');
+    const startBtn = document.getElementById('startBtn');
+    const message = document.getElementById('message');
+    const clickSound = document.getElementById('clickSound');
+
+    const emojiList = ["😄", "🐱", "👾", "🍕", "🦄", "🎯", "🎉", "🕹️", "🐸", "🐵", "🤖"];
+
+    let score = 0;
+    let timeLeft = 60;
+    let speed = 1000;
+    let isDark = true;
+    let gameEnded = true;
+    let moveInterval;
+    let timerInterval;
+
+    function moveEmoji() {
+      if (gameEnded) return;
+      const maxX = window.innerWidth - 50;
+      const maxY = window.innerHeight - 50;
+      const randX = Math.random() * maxX;
+      const randY = Math.random() * maxY;
+      emoji.style.left = `${randX}px`;
+      emoji.style.top = `${randY}px`;
+      emoji.innerText = emojiList[Math.floor(Math.random() * emojiList.length)];
+    }
+
+    function loopMove() {
+      moveEmoji();
+      moveInterval = setTimeout(loopMove, speed);
+    }
+
+    function endGame(win) {
+      gameEnded = true;
+      clearTimeout(moveInterval);
+      clearInterval(timerInterval);
+      emoji.style.display = 'none';
+      message.style.display = 'block';
+      message.innerText = win ? "🎉 You Win Avilo!" : "😢 You Lose Avilo!";
+      startBtn.textContent = "Restart Game";
+    }
+
+    function startGame() {
+      score = 0;
+      timeLeft = 60;
+      speed = 1000;
+      gameEnded = false;
+      emoji.style.display = 'block';
+      message.style.display = 'none';
+      scoreBoard.innerText = "Score: 0";
+      timerDisplay.innerText = "Time: 60s";
+      moveEmoji();
+      loopMove();
+
+      timerInterval = setInterval(() => {
+        if (gameEnded) return;
+        timeLeft--;
+        timerDisplay.innerText = `Time: ${timeLeft}s`;
+        if (timeLeft <= 0) endGame(false);
+      }, 1000);
+    }
+
+    emoji.addEventListener('click', () => {
+      if (gameEnded) return;
+      score++;
+      scoreBoard.innerText = `Score: ${score}`;
+      clickSound.play();
+      speed = Math.max(300, speed - 20);
+      moveEmoji();
+      if (score >= 50) endGame(true);
+    });
+
+    toggleBtn.addEventListener('click', () => {
+      isDark = !isDark;
+      document.documentElement.style.setProperty('--bg-color', isDark ? '#111' : '#fff');
+      document.documentElement.style.setProperty('--text-color', isDark ? '#fff' : '#000');
+      toggleBtn.textContent = isDark ? 'Light Mode' : 'Dark Mode';
+      toggleBtn.style.background = isDark ? '#333' : '#ddd';
+      toggleBtn.style.color = isDark ? '#fff' : '#000';
+    });
+
+    startBtn.addEventListener('click', startGame);
+  </script>
+</body>
+</html>
