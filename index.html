@@ -1,0 +1,376 @@
+<!DOCTYPE html><html lang="en"><head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+  <title>Limits Contact Center</title>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+  <style>
+    :root {
+      --accent: #00aaff;
+      --yellow: #ffc107;
+      --bg-dark: #000000;
+      --fg-dark: #ffffff;
+      --bg-light: #f2f2f2;
+      --fg-light: #000000;
+    }html, body {
+  margin: 0;
+  font-family: 'Segoe UI', sans-serif;
+  background-color: var(--bg-dark);
+  color: var(--fg-dark);
+  overflow-x: hidden;
+  transition: all 0.5s ease;
+}
+
+body.light-mode {
+  background-color: var(--bg-light);
+  color: var(--fg-light);
+}
+
+.stars {
+  background: transparent;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 0;
+}
+
+.star {
+  position: absolute;
+  width: 4px;
+  height: 4px;
+  background: white;
+  border-radius: 50%;
+  animation: blink 2s infinite ease-in-out, move 10s linear infinite;
+}
+
+@keyframes blink {
+  0%, 100% { opacity: 0.2; }
+  50% { opacity: 1; }
+}
+
+@keyframes move {
+  0% { transform: translateY(0); }
+  100% { transform: translateY(20px); }
+}
+
+.toggle-mode {
+  position: fixed;
+  top: 10px;
+  left: 10px;
+  width: 32px;
+  height: 32px;
+  background: var(--accent);
+  color: white;
+  border: none;
+  border-radius: 50%;
+  z-index: 1000;
+  cursor: pointer;
+  font-size: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.earth {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  position: absolute;
+  top: 10px;
+  right: 20px;
+  background-image: url('https://upload.wikimedia.org/wikipedia/commons/8/83/Equirectangular_projection_SW.jpg');
+  background-size: cover;
+  animation: rotateEarth 10s linear infinite;
+  z-index: 2;
+}
+
+@keyframes rotateEarth {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.container {
+  position: relative;
+  max-width: 95%;
+  margin: 3rem auto;
+  padding: 2rem;
+  background: rgba(0, 0, 0, 0.7);
+  border-radius: 14px;
+  box-shadow: 0 0 25px rgba(0,0,0,0.6);
+  z-index: 1;
+  animation: fadeInPage 1.5s ease;
+}
+
+@keyframes fadeInPage {
+  from { opacity: 0; transform: scale(0.95); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+.marquee {
+  overflow: hidden;
+  white-space: nowrap;
+  text-align: center;
+  margin-bottom: 1.5rem;
+}
+
+.marquee span {
+  display: inline-block;
+  font-size: 2rem;
+  font-weight: bold;
+  padding-left: 100%;
+  animation: marquee 10s linear infinite, rainbowText 5s linear infinite;
+}
+
+@keyframes marquee {
+  0% { transform: translate(0, 0); }
+  100% { transform: translate(-100%, 0); }
+}
+
+@keyframes rainbowText {
+  0% { color: red; }
+  16% { color: orange; }
+  33% { color: yellow; }
+  50% { color: green; }
+  66% { color: blue; }
+  83% { color: indigo; }
+  100% { color: violet; }
+}
+
+label, input, textarea, button, .btn-link {
+  display: block;
+  width: 100%;
+  margin-bottom: 0.8rem;
+  font-size: 1rem;
+  border-radius: 6px;
+}
+
+input, textarea {
+  padding: 0.5rem;
+  border: none;
+}
+
+button {
+  padding: 0.7rem;
+  background: var(--accent);
+  color: white;
+  border: none;
+  font-weight: bold;
+  transition: background 0.3s ease;
+}
+
+.btn-link {
+  padding: 0.6rem;
+  text-align: center;
+  background: #000000;
+  color: #fff;
+  font-weight: bold;
+  text-decoration: none;
+  animation: blinkTheme 2s infinite;
+}
+
+@keyframes blinkTheme {
+  0%, 100% { background: #000; color: #fff; }
+  50% { background: #fff; color: #000; }
+}
+
+.desc, .why, .faq {
+  margin-top: 1.5rem;
+  font-size: 1rem;
+  line-height: 1.6;
+  color: #ddd;
+  text-align: center;
+}
+
+.why, .faq {
+  background: rgba(255, 255, 255, 0.05);
+  padding: 1rem;
+  border-radius: 10px;
+  text-align: left;
+}
+
+.why h3, .faq h3 { color: var(--yellow); text-align: center; }
+.why ul, .faq ul { padding-left: 1rem; }
+
+.starscore {
+  text-align: center;
+  color: var(--yellow);
+  font-size: 1.2rem;
+  margin-top: 1.2rem;
+}
+
+.watching {
+  text-align: center;
+  color: #ff4d4d;
+  font-size: 0.95rem;
+  margin-top: 0.5rem;
+}
+
+.payments {
+  text-align: center;
+  margin-top: 2rem;
+}
+
+.payments i {
+  font-size: 2rem;
+  margin: 0.5rem;
+  color: #f7931a;
+}
+
+.qr-box {
+  text-align: center;
+  margin-top: 2rem;
+}
+
+.qr-box input {
+  padding: 10px;
+  margin-top: 10px;
+  width: 60%;
+  border-radius: 6px;
+  border: none;
+}
+
+.qr-box button {
+  margin-top: 10px;
+  padding: 10px 20px;
+}
+
+.qr-reset {
+  background: crimson;
+  color: white;
+  margin-top: 10px;
+}
+
+.generated-qr {
+  margin-top: 1rem;
+}
+
+footer {
+  text-align: center;
+  margin-top: 2rem;
+  font-size: 0.9rem;
+  color: #aaa;
+}
+
+  </style>
+</head>
+<body class="dark" onload="renderStars();" onclick="playGalaxySound()">
+  <button class="toggle-mode" onclick="toggleMode()">☯</button>
+  <div class="stars" id="stars"></div>
+  <div class="earth"></div>
+  <div class="container">
+    <div class="marquee"><span>📞 Welcome to Limits Contact Center · Reach out anytime! 📞</span></div>
+    <form onsubmit="sendEmail(event)">
+      <label for="name">Name</label>
+      <input id="name" type="text" required />
+      <label for="email">Email</label>
+      <input id="email" type="email" required />
+      <label for="message">Message</label>
+      <textarea id="message" rows="4" required></textarea>
+      <button type="submit">Send Email</button>
+    </form>
+    <a class="btn-link" href="https://wa.me/919362425113" target="_blank">💬 Chat on WhatsApp</a>
+    <a class="btn-link" href="https://chat.cxgenie.ai/?aid=42c60f76-1c6b-478b-9416-e3f281f59cce&lang=en" target="_blank">📞 Live Chat Support</a><div class="desc">I create stunning visuals — logos, QR designs, banners, posters, videos, and more — crafted with creativity and quality.</div>
+
+<div class="why">
+  <h3>Why Choose Us</h3>
+  <ul>
+    <li>🎨 Unique, professional designs tailored to your brand</li>
+    <li>⚡ Fast delivery with high attention to detail</li>
+    <li>📱 Specialized in reels, shorts, YouTube & Instagram content</li>
+    <li>🔄 Unlimited revisions until you're satisfied</li>
+    <li>🌟 Trusted by 900+ happy clients worldwide</li>
+  </ul>
+</div>
+
+<div class="faq">
+  <h3>Frequently Asked Questions</h3>
+  <ul>
+    <li><strong>Q:</strong> How long does delivery take?<br><strong>A:</strong> Usually within 24-48 hours depending on the service.</li>
+    <li><strong>Q:</strong> Do you offer refunds?<br><strong>A:</strong> Yes, if the client is not satisfied even after revisions.</li>
+    <li><strong>Q:</strong> What platforms do you design for?<br><strong>A:</strong> Instagram, YouTube, Facebook, WhatsApp, and more.</li>
+  </ul>
+</div>
+
+<div class="qr-box">
+  <h3>Pay via UPI</h3>
+  <input type="number" id="amount" placeholder="Enter amount (₹)">
+  <button onclick="generateQR()">Generate QR</button>
+  <button class="qr-reset" onclick="resetQR()">Reset</button>
+  <div class="generated-qr" id="qr-result"></div>
+</div>
+
+<div class="starscore">⭐⭐⭐⭐ 4.0 out of 5 from 1.3k reviews</div>
+
+<div class="payments">
+  <h3>Accepted Payment Methods</h3>
+  <i class="fab fa-google-pay"></i>
+  <i class="fab fa-bitcoin"></i>
+  <i class="fab fa-ethereum"></i>
+  <i class="fab fa-paypal"></i>
+  <i class="fas fa-university"></i>
+</div>
+
+<div class="watching">👁️ <span id="viewer-count">77</span> people currently viewing</div>
+
+  </div>  <footer>© All rights reserved · Limits · 2025</footer>
+  <audio id="galaxy-audio" preload="auto">
+    <source src="https://cdn.pixabay.com/download/audio/2023/03/16/audio_74d42b7c73.mp3?filename=space-ambient-112941.mp3" type="audio/mp3">
+  </audio>
+  <script>
+    function toggleMode() {
+      document.body.classList.toggle('light-mode');
+    }function sendEmail(e) {
+  e.preventDefault();
+  const name = document.getElementById("name").value.trim();
+  const email = document.getElementById("email").value.trim();
+  const message = document.getElementById("message").value.trim();
+  if (!name || !email || !message) {
+    alert("Please fill in all fields.");
+    return;
+  }
+  window.open(`mailto:kamba12samuel@gmail.com?subject=Message from ${name}&body=${encodeURIComponent(message)}`);
+}
+
+function playGalaxySound() {
+  const audio = document.getElementById("galaxy-audio");
+  if (audio && audio.paused) {
+    audio.volume = 0.3;
+    audio.play().catch(() => {});
+  }
+}
+
+function updateViewerCount() {
+  const count = Math.floor(Math.random() * 66 + 15);
+  document.getElementById("viewer-count").textContent = count;
+}
+setInterval(updateViewerCount, 4000);
+updateViewerCount();
+
+function generateQR() {
+  const amt = document.getElementById('amount').value;
+  if (!amt || amt <= 0) return alert("Please enter a valid amount.");
+  const url = `https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=upi://pay?pa=kamba@fam&pn=Limits&am=${amt}`;
+  document.getElementById("qr-result").innerHTML = `<img src="${url}" alt="UPI QR Code">`;
+}
+
+function resetQR() {
+  document.getElementById("amount").value = "";
+  document.getElementById("qr-result").innerHTML = "";
+}
+
+function renderStars() {
+  const starsContainer = document.getElementById("stars");
+  for (let i = 0; i < 100; i++) {
+    const star = document.createElement("div");
+    star.classList.add("star");
+    star.style.top = `${Math.random() * 100}vh`;
+    star.style.left = `${Math.random() * 100}vw`;
+    star.style.animationDelay = `${Math.random() * 2}s`;
+    starsContainer.appendChild(star);
+  }
+}
+
+  </script>
+</body>
+</html>
