@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>AI Voice Chatbot - Sophia (Fixed Design & AI)</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <style>
+    body {
+      background: #121212;
+      color: #ffffff;
+      font-family: 'Arial', sans-serif;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+
+    #chat-container {
+      width: 100%;
+      max-width: 400px;
+      background: #1e1e1e;
+      border-radius: 12px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+      display: flex;
+      flex-direction: column;
+      height: 90vh;
+    }
+
+    #header {
+      background: #03dac5;
+      color: #121212;
+      text-align: center;
+      padding: 15px;
+      font-size: 20px;
+      font-weight: bold;
+    }
+
+    #messages {
+      flex-grow: 1;
+      padding: 15px;
+      overflow-y: auto;
+    }
+
+    .msg {
+      margin: 8px 0;
+      padding: 12px;
+      border-radius: 16px;
+      max-width: 75%;
+      line-height: 1.4;
+      word-wrap: break-word;
+    }
+
+    .user {
+      background: #2962ff;
+      align-self: flex-end;
+      border-bottom-right-radius: 0;
+    }
+
+    .bot {
+      background: #03dac5;
+      color: #121212;
+      align-self: flex-start;
+      border-bottom-left-radius: 0;
+    }
+
+    #start-button {
+      background: #03dac5;
+      color: #121212;
+      border: none;
+      padding: 15px;
+      font-size: 16px;
+      cursor: pointer;
+      width: 100%;
+    }
+
+    #start-button:active {
+      background: #018786;
+    }
+  </style>
+</head>
+<body>
+
+  <div id="chat-container">
+    <div id="header">🤖 Sophia - AI Voice Chatbot</div>
+    <div id="messages"></div>
+    <button id="start-button" onclick="startConversation()">🎙️ Start Auto Voice Chat</button>
+  </div>
+
+  <script>
+    const apiKey = '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';
+    const apiURL = 'https://api-inference.huggingface.co/models/google/flan-t5-small';  // Better model than DialoGPT
+
+    function startConversation() {
+      listenVoice();
+    }
+
+    function listenVoice() {
+      const recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
+      recognition.lang = 'en-US';
+      recognition.start();
+
+      recognition.onresult = function(event) {
+        const voiceText = event.results[0][0].transcript;
+        displayMessage(voiceText, 'user');
+        getAIReply(voiceText);
+      };
+
+      recognition.onerror = function(event) {
+        alert('Speech error: ' + event.error);
+      };
+    }
+
+    async function getAIReply(message) {
+      const response = await fetch(apiURL, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${apiKey}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ inputs: message })
+      });
+
+      const result = await response.json();
+      let reply = 'Sorry, I could not understand.';
+      if (result && result[0] && result[0].generated_text) {
+        reply = result[0].generated_text;
+      }
+
+      reply = `This is Sophia speaking. ${reply}`;
+      displayMessage(reply, 'bot');
+      speak(reply);
+    }
+
+    function speak(text) {
+      const utterance = new SpeechSynthesisUtterance(text);
+      utterance.lang = 'en-US';
+      utterance.onend = () => {
+        listenVoice();
+      };
+      speechSynthesis.speak(utterance);
+    }
+
+    function displayMessage(text, sender) {
+      const messages = document.getElementById('messages');
+      const msgDiv = document.createElement('div');
+      msgDiv.className = 'msg ' + sender;
+      msgDiv.textContent = text;
+      messages.appendChild(msgDiv);
+      messages.scrollTop = messages.scrollHeight;
+    }
+  </script>
+
+</body>
+</html>
