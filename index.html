@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>AI Assistant - Sophia</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <style>
+    body {
+      margin: 0;
+      background: linear-gradient(to bottom right, #0f2027, #203a43, #2c5364);
+      font-family: Arial, sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      overflow: hidden;
+      color: #fff;
+    }
+
+    .assistant {
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 20px;
+      box-shadow: 0 8px 32px rgba(31, 38, 135, 0.37);
+      backdrop-filter: blur(8px);
+      padding: 20px;
+      max-width: 400px;
+      text-align: center;
+    }
+
+    .message {
+      margin: 20px 0;
+      font-size: 18px;
+    }
+
+    .mic-button {
+      background: #03dac5;
+      border: none;
+      border-radius: 50%;
+      width: 70px;
+      height: 70px;
+      cursor: pointer;
+      outline: none;
+      box-shadow: 0 0 0 0 rgba(3, 218, 197, 0.7);
+      animation: pulse 2s infinite;
+    }
+
+    .mic-button.listening {
+      animation: glow 1s infinite alternate;
+    }
+
+    @keyframes glow {
+      from {
+        box-shadow: 0 0 10px rgba(3, 218, 197, 0.9);
+      }
+      to {
+        box-shadow: 0 0 30px rgba(3, 218, 197, 1);
+      }
+    }
+
+    @keyframes pulse {
+      0% {
+        box-shadow: 0 0 0 0 rgba(3, 218, 197, 0.4);
+      }
+      70% {
+        box-shadow: 0 0 0 20px rgba(3, 218, 197, 0);
+      }
+      100% {
+        box-shadow: 0 0 0 0 rgba(3, 218, 197, 0);
+      }
+    }
+  </style>
+</head>
+<body>
+
+<div class="assistant">
+  <h2>🤖 Sophia - AI Assistant</h2>
+  <div class="message" id="message">...</div>
+  <button class="mic-button" id="talkButton" onclick="startTalk()"></button>
+</div>
+
+<script>
+  const apiKey = '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';
+  const apiURL = 'https://api-inference.huggingface.co/models/google/flan-t5-small';  // Smart AI model
+
+  const messageEl = document.getElementById('message');
+  const talkButton = document.getElementById('talkButton');
+
+  // Auto welcome voice
+  function welcome() {
+    const welcomeText = "Hi, I'm Sophia! How can I assist you today?";
+    speak(welcomeText);
+    messageEl.innerText = welcomeText;
+  }
+
+  function startTalk() {
+    const recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
+    recognition.lang = 'en-US';
+
+    recognition.start();
+    talkButton.classList.add('listening');
+    messageEl.innerText = "Listening...";
+
+    recognition.onresult = async (event) => {
+      const voiceText = event.results[0][0].transcript;
+      messageEl.innerText = "You said: " + voiceText;
+      talkButton.classList.remove('listening');
+      const aiReply = await getAIReply(voiceText);
+      speak(aiReply);
+      messageEl.innerText = aiReply;
+    };
+
+    recognition.onerror = (event) => {
+      talkButton.classList.remove('listening');
+      messageEl.innerText = "Error: " + event.error;
+    };
+  }
+
+  async function getAIReply(message) {
+    const response = await fetch(apiURL, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${apiKey}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ inputs: message })
+    });
+
+    const result = await response.json();
+    if (result && result[0] && result[0].generated_text) {
+      return result[0].generated_text;
+    } else {
+      return "Sorry, I couldn't process that.";
+    }
+  }
+
+  function speak(text) {
+    const utterance = new SpeechSynthesisUtterance(text);
+    utterance.lang = 'en-US';
+    speechSynthesis.speak(utterance);
+  }
+
+  welcome();
+</script>
+
+</body>
+</html>
