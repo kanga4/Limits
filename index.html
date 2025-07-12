@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>👑 Limited SMM Panel</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      background: #0d0d0d;
+      font-family: 'Segoe UI', sans-serif;
+      color: #fff;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      flex-direction: column;
+    }
+
+    .box {
+      background: #1a1a1a;
+      border-radius: 12px;
+      box-shadow: 0 0 20px #00ffcc44;
+      padding: 25px;
+      width: 90%;
+      max-width: 400px;
+      margin: 10px;
+    }
+
+    h2, h3 {
+      text-align: center;
+      color: #00ffcc;
+    }
+
+    input, button {
+      width: 100%;
+      padding: 10px;
+      margin-top: 10px;
+      font-size: 16px;
+      border: none;
+      border-radius: 5px;
+    }
+
+    input {
+      background: #2b2b2b;
+      color: #fff;
+    }
+
+    button {
+      background: #00ffcc;
+      color: #000;
+      font-weight: bold;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+
+    button:hover {
+      background: #00ffaa;
+    }
+
+    ul {
+      max-height: 150px;
+      overflow-y: auto;
+      background: #2c2c2c;
+      padding: 10px;
+      border-radius: 5px;
+      font-size: 14px;
+    }
+
+    ul li {
+      margin-bottom: 8px;
+    }
+
+    .hidden { display: none; }
+  </style>
+</head>
+<body>
+
+  <div class="box login-box">
+    <h2>👑 Limited SMM Panel</h2>
+    <input type="text" id="username" placeholder="Enter any username" />
+    <button onclick="login()">Enter Panel</button>
+  </div>
+
+  <div class="box dashboard hidden">
+    <h3>💰 Balance</h3>
+    <p><strong>Status:</strong> <span id="balance">Loading...</span></p>
+
+    <h3>🧰 Services</h3>
+    <button onclick="getServices()">🔍 Fetch Services</button>
+    <ul id="serviceList"></ul>
+
+    <h3>📦 Place Order</h3>
+    <input type="text" id="serviceID" placeholder="Service ID" />
+    <input type="text" id="link" placeholder="Link" />
+    <input type="number" id="quantity" placeholder="Quantity" />
+    <button onclick="placeOrder()">✅ Order Now</button>
+
+    <h3>💳 Payment</h3>
+    <button onclick="payNow()">💸 Pay Now</button>
+  </div><script>
+  const apiKey = "c218d7763f23f1de60e1b4760d182fdc";
+  const apiURL = "https://gahoripanel.shop/api/v2";
+
+  function login() {
+    const user = document.getElementById("username").value.trim();
+    if (user !== "") {
+      document.querySelector(".login-box").classList.add("hidden");
+      document.querySelector(".dashboard").classList.remove("hidden");
+      getBalance();
+    }
+  }
+
+  function getBalance() {
+    document.getElementById("balance").textContent = "Loading...";
+    fetch(apiURL, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/x-www-form-urlencoded"
+      },
+      body: `key=${apiKey}&action=balance`
+    })
+    .then(res => res.json())
+    .then(data => {
+      if (data.balance) {
+        document.getElementById("balance").textContent = `₹${data.balance}`;
+      } else {
+        document.getElementById("balance").textContent = "Failed to load.";
+      }
+    })
+    .catch(() => {
+      document.getElementById("balance").textContent = "Error.";
+    });
+  }
+
+  function getServices() {
+    const list = document.getElementById("serviceList");
+    list.innerHTML = "⏳ Loading...";
+    fetch(apiURL, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/x-www-form-urlencoded"
+      },
+      body: `key=${apiKey}&action=services`
+    })
+    .then(res => res.json())
+    .then(data => {
+      list.innerHTML = "";
+      data.forEach(service => {
+        const li = document.createElement("li");
+        li.textContent = `${service.service}: ${service.name} (${service.rate}₹ / ${service.min}-${service.max})`;
+        list.appendChild(li);
+      });
+    })
+    .catch(() => {
+      list.innerHTML = "<li>⚠️ Failed to fetch services.</li>";
+    });
+  }
+
+  function placeOrder() {
+    const sid = document.getElementById("serviceID").value.trim();
+    const link = document.getElementById("link").value.trim();
+    const qty = document.getElementById("quantity").value.trim();
+
+    if (!sid || !link || !qty) {
+      alert("⚠️ Please fill all fields!");
+      return;
+    }
+
+    const data = `key=${apiKey}&action=add&service=${sid}&link=${encodeURIComponent(link)}&quantity=${qty}`;
+    fetch(apiURL, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/x-www-form-urlencoded"
+      },
+      body: data
+    })
+    .then(res => res.json())
+    .then(res => {
+      if (res.order) {
+        alert(`✅ Order placed! ID: ${res.order}`);
+      } else {
+        alert("❌ Failed to place order.");
+        console.log(res);
+      }
+    })
+    .catch(() => {
+      alert("❌ Network or server error.");
+    });
+  }
+
+  function payNow() {
+    const amount = prompt("Enter amount to pay (₹):");
+    if (!amount || isNaN(amount)) {
+      alert("⚠️ Invalid amount.");
+      return;
+    }
+
+    const upiURL = `upi://pay?pa=kamba@fam&pn=Kamba&am=${amount}&cu=INR`;
+    window.location.href = upiURL;
+  }
+</script>
+</body>
+</html>
